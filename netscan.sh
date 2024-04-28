@@ -25,15 +25,15 @@ function help_panel(){
     ip_addr_help="192.168.1.1"
   fi
 
-  echo -e "\n[i] Usage: $0\n"
+  echo -e "\n[i] Usage: ./$0\n"
   echo -e "-t) Target IP/Network: $ip_addr_help"
-  echo -e "-N) Network scan of all active hosts: $0 -N -t $ip_addr_help "
-  echo -e "-P) Port scan of all active hosts: $0 -P -t $ip_addr_help"
-  echo -e "-p) Port scan of a singular host: $0 -p -t $ip_addr_help"
-  echo -e "-r) Port range to scan (default 1-65535): $0 -p -t $ip_addr_help -r 80-9001"
-  echo -e "-R) Network range to scan (default 1-255): $0 -N -t $ip_addr_help -R 1-20"
-  echo -e "-s) Timeout for each ping/portscan (default 1): $0 -N -t $ip_addr_help -s 5"
-  echo -e "-i) Find host ip of all interfaces: $0 -i"
+  echo -e "-N) Network scan of all active hosts: ./$0 -N -t $ip_addr_help "
+  echo -e "-P) Port scan of all active hosts: ./$0 -P -t $ip_addr_help"
+  echo -e "-p) Port scan of a singular host: ./$0 -p -t $ip_addr_help"
+  echo -e "-r) Port range to scan (default 1-65535): ./$0 -p -t $ip_addr_help -r 80-9001"
+  echo -e "-R) Network range to scan (default 1-255): ./$0 -N -t $ip_addr_help -R 1-20"
+  echo -e "-s) Timeout for each ping/portscan (default 1): ./$0 -N -t $ip_addr_help -s 5"
+  echo -e "-i) Find host ip of all interfaces: ./$0 -i"
   echo -e "\nexample: bash $0 -P -t $ip_addr_help -R 1-100 -r 1-10000 -s 2" 
 
 }
