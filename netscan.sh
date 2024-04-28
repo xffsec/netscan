@@ -5,7 +5,6 @@ function ctrl_c(){
   kill -- -$$
 }
 trap ctrl_c INT
-trap ctrl_c SIGTERM
 
 function banner(){
 
@@ -26,8 +25,7 @@ function help_panel(){
   fi
 
   echo -e "\n[i] Usage: $0"
-  echo -e "\t-T) Target Network: $ip_addr_help"
-  echo -e "\t-t) Target IP Host: $ip_addr_help"
+  echo -e "\t-t) Target IP/Network: $ip_addr_help"
   echo -e "\t-N) Network scan of all active hosts: $0 -N -T $ip_addr_help "
   echo -e "\t-P) Port scan of all active hosts: $0 -P -T $ip_addr_help"
   echo -e "\t-p) Port scan of a singular host: $0 -p -t $ip_addr_help"
@@ -35,7 +33,7 @@ function help_panel(){
   echo -e "\t-R) Network range to scan (default 1-255): $0 -N -T $ip_addr_help -R 1-20"
   echo -e "\t-s) Timeout for each ping/portscan (default 1): $0 -N -T $ip_addr_help -s 5"
   echo -e "\t-i) Find interfaces: $0 -i"
-  echo -e "\nexample: bash $0 -P -T $ip_addr_help -R 1-100 -r 1-10000 -s 2" 
+  echo -e "\nexample: bash $0 -P -t $ip_addr_help -R 1-100 -r 1-10000 -s 2" 
 
 }
 
@@ -88,7 +86,6 @@ function target_portscan(){
 # Parse the command-line options
 while getopts "T:t:NPphr:R:s:i" arg; do
   case $arg in
-    T) network=$OPTARG ;;
     t) target=$OPTARG ;;
     N) flag_N=true ;;
     P) flag_P=true ;;
@@ -101,7 +98,7 @@ while getopts "T:t:NPphr:R:s:i" arg; do
   esac
 done
 
-network="$(echo $network | grep -oP '\d{1,3}\.\d{1,3}\.\d{1,3}')"
+network="$(echo $target | grep -oP '\d{1,3}\.\d{1,3}\.\d{1,3}')"
 
 if [ -z $port_range ]; then 
   port_range="1-65535"
