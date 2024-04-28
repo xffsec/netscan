@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# netscan v0.1, Author @xffsec
+
 function ctrl_c(){
   echo -e "\n[!] Exiting..."
   kill -- -$$
@@ -7,7 +9,6 @@ function ctrl_c(){
 trap ctrl_c INT
 
 function banner(){
-
   echo '
   _  __    __  ____            
   / |/ /__ / /_/ __/______ ____ 
@@ -24,15 +25,15 @@ function help_panel(){
     ip_addr_help="192.168.1.1"
   fi
 
-  echo -e "\n[i] Usage: $0"
-  echo -e "\t-t) Target IP/Network: $ip_addr_help"
-  echo -e "\t-N) Network scan of all active hosts: $0 -N -T $ip_addr_help "
-  echo -e "\t-P) Port scan of all active hosts: $0 -P -T $ip_addr_help"
-  echo -e "\t-p) Port scan of a singular host: $0 -p -t $ip_addr_help"
-  echo -e "\t-r) Port range to scan (default 1-65535): $0 -p -t $ip_addr_help -r 80-9001"
-  echo -e "\t-R) Network range to scan (default 1-255): $0 -N -T $ip_addr_help -R 1-20"
-  echo -e "\t-s) Timeout for each ping/portscan (default 1): $0 -N -T $ip_addr_help -s 5"
-  echo -e "\t-i) Find interfaces: $0 -i"
+  echo -e "\n[i] Usage: $0\n"
+  echo -e "-t) Target IP/Network: $ip_addr_help"
+  echo -e "-N) Network scan of all active hosts: $0 -N -t $ip_addr_help "
+  echo -e "-P) Port scan of all active hosts: $0 -P -t $ip_addr_help"
+  echo -e "-p) Port scan of a singular host: $0 -p -t $ip_addr_help"
+  echo -e "-r) Port range to scan (default 1-65535): $0 -p -t $ip_addr_help -r 80-9001"
+  echo -e "-R) Network range to scan (default 1-255): $0 -N -t $ip_addr_help -R 1-20"
+  echo -e "-s) Timeout for each ping/portscan (default 1): $0 -N -t $ip_addr_help -s 5"
+  echo -e "-i) Find host ip of all interfaces: $0 -i"
   echo -e "\nexample: bash $0 -P -t $ip_addr_help -R 1-100 -r 1-10000 -s 2" 
 
 }
@@ -42,6 +43,7 @@ function interfaces(){
   for interface in $(hostname -I); do 
     ((ifacenum+=1)); echo -e "[$ifacenum] $interface"
   done
+  echo "--- Finished ---"
 }
 
 function portscan(){
@@ -50,7 +52,7 @@ function portscan(){
     (
     ping -c 1 -w $time_out $network.$host >/dev/null 2>&1 && for port in $(seq $(echo $port_range|tr '-' ' ')); do
         ( 
-          timeout $time_out echo > /dev/tcp/$network.$host/$port && echo -e "\t[+] $network.$host:$port" 
+          timeout $time_out echo > /dev/tcp/$network.$host/$port && echo -e "[+] $network.$host:$port" 
         )&
       done 2>/dev/null
       wait
@@ -64,7 +66,7 @@ function hostscan(){
   echo -e "\n--- SCAN ON NETWORK $network.$network_range ---"
   for host in $(seq $(echo $network_range|tr '-' ' ')); do
   ( 
-  timeout $time_out ping -c 1 -w $time_out $network.$host >/dev/null 2>&1 && echo -e "\t[+] Active Host $network.$host" 
+  timeout $time_out ping -c 1 -w $time_out $network.$host >/dev/null 2>&1 && echo -e "[+] Active Host $network.$host" 
   ) &
   done
   wait
@@ -75,7 +77,7 @@ function target_portscan(){
   echo -e "\n--- PORT SCANNING ON $target $port_range ---"
   for port in $(seq $(echo $port_range|tr '-' ' ')); do 
   (
-    timeout $time_out echo > /dev/tcp/$target/$port && echo -e "\t[+] $target:$port"
+    timeout $time_out echo > /dev/tcp/$target/$port && echo -e "[+] $target:$port"
   )&
   done 2>/dev/null
   wait
@@ -90,8 +92,8 @@ while getopts "T:t:NPphr:R:s:i" arg; do
     N) flag_N=true ;;
     P) flag_P=true ;;
     p) flag_p=true ;;
-    r) port_range=$OPTARG ;; 
-    R) network_range=$OPTARG ;;
+    r) port_range=$OPTARG ; flag_r=true;; 
+    R) network_range=$OPTARG flag_R=true ;;
     s) time_out=$OPTARG ;;
     i) flag_i=true ;; 
     h) banner;;
@@ -114,11 +116,11 @@ fi
 
 
 # Check for correct combinations of options
-if [[ -n $flag_N && -n $network && -z $flag_P && -z $flag_p ]]; then
+if [[ -n $flag_N && -n $network && -z $flag_P && -z $flag_p && -z $flag_r ]]; then
   hostscan
 elif [[ -n $flag_P && -z $flag_N && -z $flag_p ]]; then
   portscan
-elif [[ -n $flag_p && -n $target && -z $flag_N && -z $flag_P ]]; then
+elif [[ -n $flag_p && -n $target && -z $flag_N && -z $flag_P && -z $flag_R ]]; then
   target_portscan
 elif [[ -n $flag_i ]]; then 
   interfaces 
